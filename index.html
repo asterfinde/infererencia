@@ -41,16 +41,30 @@
             font-size: 1.1em;
         }
         
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 1.3em;
+            color: #667eea;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+            font-weight: 600;
+        }
+        
         .document-list {
             list-style: none;
         }
         
         .document-item {
             background: #f8f9fa;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             border-radius: 10px;
             transition: all 0.3s ease;
             border-left: 4px solid #667eea;
+            overflow: hidden;
         }
         
         .document-item:hover {
@@ -61,7 +75,7 @@
         .document-link {
             display: flex;
             align-items: center;
-            padding: 20px;
+            padding: 18px 20px;
             text-decoration: none;
             color: #333;
         }
@@ -87,9 +101,74 @@
             content: "📊";
         }
         
+        .excel-icon::before {
+            content: "📊";
+            font-size: 18px;
+        }
+        
+        .md-icon::before {
+            content: "📝";
+        }
+        
+        .html-icon::before {
+            content: "🌐";
+        }
+        
+        .folder-icon {
+            background: #764ba2;
+        }
+        
+        .folder-icon::before {
+            content: "📁";
+        }
+        
         .doc-title {
             font-weight: 500;
-            font-size: 1.1em;
+            font-size: 1.05em;
+            flex-grow: 1;
+        }
+        
+        /* Estilos para carpetas colapsables */
+        .folder-item {
+            border-left: 4px solid #764ba2;
+        }
+        
+        .folder-header {
+            display: flex;
+            align-items: center;
+            padding: 18px 20px;
+            cursor: pointer;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+        
+        .folder-header:hover {
+            background: #e9ecef;
+        }
+        
+        .folder-toggle {
+            margin-left: auto;
+            font-size: 1.2em;
+            color: #764ba2;
+            transition: transform 0.3s ease;
+        }
+        
+        .folder-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: #f1f3f5;
+            padding: 0 20px;
+        }
+        
+        .folder-content.expanded {
+            max-height: 2000px;
+            padding: 15px 20px;
+        }
+        
+        .folder-content .document-item {
+            margin-left: 20px;
+            border-left-color: #868e96;
         }
         
         .footer {
@@ -101,6 +180,15 @@
             font-size: 0.9em;
         }
         
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
         @media (max-width: 768px) {
             .container {
                 padding: 20px;
@@ -110,8 +198,12 @@
                 font-size: 1.8em;
             }
             
+            .section-title {
+                font-size: 1.1em;
+            }
+            
             .doc-title {
-                font-size: 1em;
+                font-size: 0.95em;
             }
         }
     </style>
@@ -121,74 +213,185 @@
         <h1>📚 Inferencia Estadística</h1>
         <p class="subtitle">Materiales del curso - Click para visualizar</p>
         
-        <ul class="document-list">
-            <li class="document-item">
-                <a href="1_Capitulo1_Infe.R" class="document-link" target="_blank">
-                    <div class="doc-icon r-icon"></div>
-                    <div class="doc-title">Capítulo 1 - Script R</div>
-                </a>
-            </li>
-            
-            <li class="document-item">
-                <a href="2_Densidades de funciones.pdf" class="document-link" target="_blank">
-                    <div class="doc-icon"></div>
-                    <div class="doc-title">Capítulo 2 - Densidades de funciones</div>
-                </a>
-            </li>
-            
-            <li class="document-item">
-                <a href="2_Capitulo2_Infe.R" class="document-link" target="_blank">
-                    <div class="doc-icon r-icon"></div>
-                    <div class="doc-title">Capítulo 2 - Script R</div>
-                </a>
-            </li>
-            
-            <li class="document-item">
-                <a href="3.Distribuciones muestrales.pdf" class="document-link" target="_blank">
-                    <div class="doc-icon"></div>
-                    <div class="doc-title">Capítulo 3 - Distribuciones muestrales</div>
-                </a>
-            </li>
-            
-            <li class="document-item">
-                <a href="3_Capitulo3_Infe.R" class="document-link" target="_blank">
-                    <div class="doc-icon r-icon"></div>
-                    <div class="doc-title">Capítulo 3 - Script R</div>
-                </a>
-            </li>
-            
-            <li class="document-item">
-                <a href="10.Métodos de estimación puntual.pdf" class="document-link" target="_blank">
-                    <div class="doc-icon"></div>
-                    <div class="doc-title">Capítulo 10 - Métodos de estimación puntual</div>
-                </a>
-            </li>
-            
-            <li class="document-item">
-                <a href="11.Teoría de la Optimalidad.pdf" class="document-link" target="_blank">
-                    <div class="doc-icon"></div>
-                    <div class="doc-title">Capítulo 11 - Teoría de la Optimalidad</div>
-                </a>
-            </li>
-            
-            <li class="document-item">
-                <a href="12.Intervalos de confianza.pdf" class="document-link" target="_blank">
-                    <div class="doc-icon"></div>
-                    <div class="doc-title">Capítulo 12 - Intervalos de confianza</div>
-                </a>
-            </li>
-            
-            <li class="document-item">
-                <a href="13.Pruebas de hipótesis.pdf" class="document-link" target="_blank">
-                    <div class="doc-icon"></div>
-                    <div class="doc-title">Capítulo 13 - Pruebas de hipótesis</div>
-                </a>
-            </li>
-        </ul>
+        <!-- Scripts R -->
+        <div class="section">
+            <div class="section-title">🔬 Scripts en R</div>
+            <ul class="document-list">
+                <li class="document-item">
+                    <a href="1_Capitulo1_Infe.R" class="document-link" target="_blank">
+                        <div class="doc-icon r-icon"></div>
+                        <div class="doc-title">Capítulo 1 - Script R</div>
+                    </a>
+                </li>
+                <li class="document-item">
+                    <a href="2_Capitulo2_Infe.R" class="document-link" target="_blank">
+                        <div class="doc-icon r-icon"></div>
+                        <div class="doc-title">Capítulo 2 - Script R</div>
+                    </a>
+                </li>
+                <li class="document-item">
+                    <a href="3_Capitulo3_Infe.R" class="document-link" target="_blank">
+                        <div class="doc-icon r-icon"></div>
+                        <div class="doc-title">Capítulo 3 - Script R</div>
+                    </a>
+                </li>
+                <li class="document-item">
+                    <a href="4_Capitulo4_Infe.R" class="document-link" target="_blank">
+                        <div class="doc-icon r-icon"></div>
+                        <div class="doc-title">Capítulo 4 - Script R</div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Material Teórico -->
+        <div class="section">
+            <div class="section-title">📖 Material Teórico</div>
+            <ul class="document-list">
+                <li class="document-item">
+                    <a href="2. Densidades de funciones.pdf" class="document-link" target="_blank">
+                        <div class="doc-icon"></div>
+                        <div class="doc-title">Capítulo 2 - Densidades de funciones</div>
+                    </a>
+                </li>
+                <li class="document-item">
+                    <a href="3.Distribuciones muestrales.pdf" class="document-link" target="_blank">
+                        <div class="doc-icon"></div>
+                        <div class="doc-title">Capítulo 3 - Distribuciones muestrales</div>
+                    </a>
+                </li>
+                <li class="document-item">
+                    <a href="4.La ley de los grandes números.pdf" class="document-link" target="_blank">
+                        <div class="doc-icon"></div>
+                        <div class="doc-title">Capítulo 4 - La ley de los grandes números</div>
+                    </a>
+                </li>
+                <li class="document-item">
+                    <a href="5.Estadísticas de orden.pdf" class="document-link" target="_blank">
+                        <div class="doc-icon"></div>
+                        <div class="doc-title">Capítulo 5 - Estadísticas de orden</div>
+                    </a>
+                </li>
+                <li class="document-item">
+                    <a href="8.Inferencia Estadistica.pdf" class="document-link" target="_blank">
+                        <div class="doc-icon"></div>
+                        <div class="doc-title">Capítulo 8 - Inferencia Estadística</div>
+                    </a>
+                </li>
+                <li class="document-item">
+                    <a href="9.Suficiencia.pdf" class="document-link" target="_blank">
+                        <div class="doc-icon"></div>
+                        <div class="doc-title">Capítulo 9 - Suficiencia</div>
+                    </a>
+                </li>
+                <li class="document-item">
+                    <a href="10.Métodos de estimación puntual.pdf" class="document-link" target="_blank">
+                        <div class="doc-icon"></div>
+                        <div class="doc-title">Capítulo 10 - Métodos de estimación puntual</div>
+                    </a>
+                </li>
+                <li class="document-item">
+                    <a href="11.Teoría de la Optimalidad.pdf" class="document-link" target="_blank">
+                        <div class="doc-icon"></div>
+                        <div class="doc-title">Capítulo 11 - Teoría de la Optimalidad</div>
+                    </a>
+                </li>
+                <li class="document-item">
+                    <a href="12.Intervalos de confianza.pdf" class="document-link" target="_blank">
+                        <div class="doc-icon"></div>
+                        <div class="doc-title">Capítulo 12 - Intervalos de confianza</div>
+                    </a>
+                </li>
+                <li class="document-item">
+                    <a href="13.Pruebas de hipótesis.pdf" class="document-link" target="_blank">
+                        <div class="doc-icon"></div>
+                        <div class="doc-title">Capítulo 13 - Pruebas de hipótesis</div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Material Complementario -->
+        <div class="section">
+            <div class="section-title">📚 Material Complementario</div>
+            <ul class="document-list">
+                <li class="document-item">
+                    <a href="FORMULARIO.pdf" class="document-link" target="_blank">
+                        <div class="doc-icon"></div>
+                        <div class="doc-title">Formulario</div>
+                    </a>
+                </li>
+                <li class="document-item">
+                    <a href="base_trabajo_integrador_inferencia.xlsx" class="document-link" target="_blank">
+                        <div class="doc-icon excel-icon"></div>
+                        <div class="doc-title">Base de datos - Trabajo Integrador</div>
+                    </a>
+                </li>
+                <li class="document-item">
+                    <a href="respuestas-gemini.md" class="document-link" target="_blank">
+                        <div class="doc-icon md-icon"></div>
+                        <div class="doc-title">Respuestas Gemini</div>
+                    </a>
+                </li>
+                <li class="document-item">
+                    <a href="trabinf.html" class="document-link" target="_blank">
+                        <div class="doc-icon html-icon"></div>
+                        <div class="doc-title">Trabajo Integrador (HTML)</div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Carpeta TRABINF -->
+        <div class="section">
+            <div class="section-title">📂 Carpetas</div>
+            <ul class="document-list">
+                <li class="document-item folder-item">
+                    <div class="folder-header" onclick="toggleFolder('trabinf')">
+                        <div class="doc-icon folder-icon"></div>
+                        <div class="doc-title">TRABINF - Trabajo Integrador</div>
+                        <span class="folder-toggle" id="toggle-trabinf">▼</span>
+                    </div>
+                    <div class="folder-content" id="folder-trabinf">
+                        <ul class="document-list">
+                            <!-- Aquí puedes agregar los archivos que están dentro de TRABINF -->
+                            <li class="document-item">
+                                <a href="TRABINF/archivo1.pdf" class="document-link" target="_blank">
+                                    <div class="doc-icon"></div>
+                                    <div class="doc-title">Archivo ejemplo 1</div>
+                                </a>
+                            </li>
+                            <li class="document-item">
+                                <a href="TRABINF/archivo2.pdf" class="document-link" target="_blank">
+                                    <div class="doc-icon"></div>
+                                    <div class="doc-title">Archivo ejemplo 2</div>
+                                </a>
+                            </li>
+                            <!-- Agrega más archivos según corresponda -->
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </div>
         
         <div class="footer">
-            Repositorio: <a href="https://github.com/asterfinde/infererencia" target="_blank" style="color: #667eea;">asterfinde/infererencia</a>
+            Repositorio: <a href="https://github.com/asterfinde/infererencia" target="_blank">asterfinde/infererencia</a>
         </div>
     </div>
+    
+    <script>
+        function toggleFolder(folderId) {
+            const folderContent = document.getElementById('folder-' + folderId);
+            const toggleIcon = document.getElementById('toggle-' + folderId);
+            
+            if (folderContent.classList.contains('expanded')) {
+                folderContent.classList.remove('expanded');
+                toggleIcon.textContent = '▼';
+            } else {
+                folderContent.classList.add('expanded');
+                toggleIcon.textContent = '▲';
+            }
+        }
+    </script>
 </body>
 </html>
