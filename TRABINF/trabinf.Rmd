@@ -1,0 +1,1679 @@
+---
+title: ""
+author: ""
+date: ""
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE, 
+  warning = FALSE)
+```
+
+::: {style="text-align:center; margin-top:80px; font-family: Arial, sans-serif;"}
+### UNIVERSIDAD NACIONAL AGRARIA
+
+### 
+
+LA MOLINA
+
+<br>
+
+### FACULTAD DE ECONOMÍA Y PLANIFICACIÖN
+
+### ESTADÍSTICA E INFORMÁTICA
+
+<br>
+
+<img src="logo_unalm.png" width="180" style="margin:20px;"/>
+
+<br>
+
+**TRABAJO FINAL INTEGRADOR**
+
+<br><br>
+
+**Presentado por:**
+
+FRÍAS GOMEZ, LEONARDO JOAQUIN 
+
+SAAVEDRA ACUÑA, KAMILA NICOLL
+
+CORONADO DE LA VEGA, HECTOR ALONSO
+
+BRYAN VARGAS
+
+<br><br>
+
+**INFERENCIA ESTADÍSTICA**
+
+<br><br><br><br>
+
+**LIMA – PERÚ**\
+**AÑO 2025**
+:::
+
+::: {style="page-break-after: always;"}
+:::
+
+```{r librerias, echo=FALSE, results="hide"}
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(knitr)
+library(kableExtra)
+```
+
+# **1. Introducción**
+
+## **1.1 Contexto del estudio**
+
+El Ministerio de Salud ha implementado un nuevo programa de seguimiento dirigido a pacientes con enfermedades crónicas que presentan episodios recurrentes de crisis de salud. Este programa tiene como finalidad mejorar el control clínico de los pacientes, reducir la frecuencia de visitas a los servicios de emergencia y favorecer una recuperación más rápida luego de cada episodio crítico.
+
+En el marco de esta intervención, se ha recolectado información correspondiente a 200 pacientes durante un periodo de seis meses, registrándose variables vinculadas a la frecuencia de atención médica de emergencia, el estado de salud de los pacientes al inicio y al final del periodo de seguimiento, y el tiempo requerido para su recuperación posterior a una crisis. Estas variables permiten analizar tanto el comportamiento de eventos discretos asociados a las visitas de emergencia como los cambios en la condición clínica de los pacientes a partir de observaciones pareadas, así como la evolución del tiempo de recuperación, el cual corresponde a una variable continua que no necesariamente sigue una distribución normal.
+
+Desde el punto de vista del análisis estadístico, el objetivo es aplicar técnicas de inferencia estadística que permitan entender el comportamiento de los datos, estimar parámetros relevantes y contrastar hipótesis relacionadas con el impacto del programa de seguimiento. A través de este análisis se busca aportar evidencia que ayude a evaluar la efectividad de la intervención implementada y que sirva como apoyo para la toma de decisiones en el ámbito de la salud pública.
+
+## **1.2. Justificación**
+
+El presente trabajo se justifica por la necesidad de aplicar de forma práctica los principales conceptos de la inferencia estadística utilizando una base de datos realista vinculada al ámbito de la salud. El análisis de información de pacientes con enfermedades crónicas permite trabajar con diferentes tipos de variables y aplicar técnicas de estimación, pruebas de hipótesis y evaluación de modelos probabilísticos.
+
+En particular, el estudio del número de visitas a emergencia y del tiempo de recuperación permite analizar el ajuste de los datos a distintas distribuciones teóricas y evaluar su comportamiento estadístico. Asimismo, la información sobre el estado de salud de los pacientes antes y después del seguimiento hace posible aplicar pruebas de hipótesis para datos pareados, lo que resulta útil para evaluar cambios asociados al programa implementado.
+
+De esta manera, el desarrollo del trabajo contribuye a reforzar la interpretación de resultados estadísticos y el uso de técnicas estadísticas como apoyo para la toma de decisiones basadas en evidencia, tanto desde un punto de vista académico como aplicado.
+
+## **1.3. Objetivos del trabajo**
+
+**Objetivo General**
+
+Aplicar técnicas de inferencia estadística a una base de datos de pacientes con enfermedades crónicas, con el fin de analizar el comportamiento de las visitas a emergencia, los cambios en el estado de salud y el tiempo de recuperación, evaluando la adecuación de distintos modelos probabilísticos y pruebas estadísticas.
+
+**Objetivos Específicos**
+
+**a. Análisis de estimadores y sus propiedades**
+
+Aplicar al menos cinco estimadores diferentes para los parámetros asociados a las variables de interés del estudio.
+
+Evaluar las principales propiedades estadísticas de los estimadores utilizados, tales como insesgamiento, consistencia y eficiencia.
+
+**b. Construcción de intervalos de confianza**
+
+Calcular intervalos de confianza para los parámetros estimados a partir de las variables seleccionadas.
+
+Analizar la precisión y el nivel de incertidumbre de los intervalos construidos.
+
+**c. Prueba de hipótesis para proporciones pareadas**
+
+Formular y aplicar una prueba de hipótesis para evaluar cambios en el estado de salud de los pacientes antes y después del periodo de seguimiento.
+
+Verificar que se cumplan las condiciones necesarias para el uso de pruebas con datos pareados.
+
+**d. Pruebas de hipótesis basadas en estimadores**
+
+Realizar pruebas de hipótesis utilizando los estimadores obtenidos previamente.
+
+Contrastar hipótesis relevantes relacionadas con el comportamiento de las variables analizadas.
+
+**e. Análisis de la función potencia**
+
+Analizar la función potencia de una prueba estadística considerando poblaciones que no sigan distribuciones normales ni binomiales.
+
+Evaluar la capacidad de la prueba para detectar diferencias significativas bajo distintos escenarios.
+
+**f. Distribución asintótica de la razón de verosimilitud**
+
+Aplicar pruebas basadas en la razón de verosimilitud para contrastar hipótesis sobre los parámetros del modelo.
+
+Analizar el comportamiento asintótico de los estimadores de máxima verosimilitud en el contexto del estudio.
+
+## **1.4. Metodología**
+
+El trabajo se desarrolló en tres fases principales:
+
+**Fase 1: Construcción y selección de la base de datos**
+En esta fase se trabajó con una base de datos simulada que representa información de 200 pacientes con enfermedades crónicas, recolectada durante un periodo de seguimiento de seis meses. La base incluye variables relacionadas con el número de visitas a emergencia, el estado de salud de los pacientes antes y después del seguimiento y el tiempo de recuperación posterior a una crisis.
+
+También, se realizó la selección de las variables principales del estudio, las cuales fueron definidas de acuerdo con su adecuación para el desarrollo de los análisis. Estas variables permiten trabajar con datos discretos, continuos y binarios, facilitando la aplicación de diferentes métodos de inferencia estadística.
+
+**Fase 2: Implementación en R**
+
+En esta fase se llevó a cabo la implementación de los procedimientos estadísticos utilizando el software R, desarrollando scripts reproducibles para cada uno de los puntos del trabajo. Se aplicaron técnicas de estimación, pruebas de bondad de ajuste, construcción de intervalos de confianza, pruebas de hipótesis para datos pareados, análisis de la función potencia y pruebas basadas en la razón de verosimilitud.
+
+**Fase 3: Análisis e interpretación de resultados**
+
+Finalmente, se realizó el análisis e interpretación de los resultados estadísticos obtenidos, relacionándolos con el contexto del estudio. Esta fase incluyó la evaluación de los hallazgos principales y la discusión de los resultados en función de los objetivos planteados.
+
+A partir de los resultados obtenidos, se formularon conclusiones basadas en evidencia estadística, las cuales pueden servir como apoyo para el diseño de futuros estudios en el ámbito de la salud.
+
+# **2. Base de Datos**
+
+## **2.1. Descripción de Variables**
+
+```{r, echo=FALSE, fig.align='center'}
+library(knitr)
+library(kableExtra)
+
+variables_estudio <- data.frame(
+  Variable = c(
+    "Eventos de emergencia (eventos_poisson)",
+    "Condición inicial del paciente",
+    "Condición final del paciente",
+    "Tiempo de recuperación"
+  ),
+  Tipo = c(
+    "Cuantitativa Discreta",
+    "Binaria",
+    "Binaria",
+    "Cuantitativa Continua"
+  ),
+  `Valores y/o Rango` = c(
+    "0, 1, 2, ... (conteo de visitas a emergencia)",
+    "0 = Estable, 1 = Crítico",
+    "0 = Estable, 1 = Crítico",
+    "Días (valores positivos)"
+  )
+)
+
+kable(
+  variables_estudio,
+  format = "html",
+  caption = "Descripción de las Variables del Estudio",
+  col.names = c("Variable", "Tipo", "Valores y/o Rango")
+) %>%
+  kable_styling(
+    full_width = FALSE,
+    bootstrap_options = c("striped", "hover", "condensed")
+  )
+```
+
+## **2.2 Datos**
+```{r, echo=FALSE, fig.align='center'}
+library(readxl)
+library(knitr)
+library(kableExtra)
+
+# Cargar la base de datos con las variables principales
+datos <- read_excel("Datos_Principales_Inferencia.xlsx")
+
+# Mostrar solo las primeras 10 observaciones
+kable(
+  head(datos, 10),
+  format = "html",
+  caption = "Primeras observaciones de la base de datos"
+) %>%
+  kable_styling(
+    full_width = FALSE,
+    bootstrap_options = c("striped", "hover", "condensed")
+  )
+```
+
+
+# **3. Análisis Estadístico**
+
+## **3.1 Pruebas de bondad de ajuste**
+
+```{r, echo=FALSE, results="hide"}
+
+# Cargar datos
+datos <- read_excel("Datos_Principales_Inferencia.xlsx")
+
+# Resumen de estructura y valores faltantes
+resumen <- data.frame(
+  Variable = names(datos),
+  Tipo = sapply(datos, class),
+  NA_count = sapply(datos, function(x) sum(is.na(x)))
+)
+
+# Tabla
+kable(
+  resumen,
+  format = "html",
+  caption = "Estructura y valores faltantes"
+) %>%
+  kable_styling(
+    full_width = FALSE,
+    bootstrap_options = c("striped", "hover", "condensed")
+  )
+```
+
+
+Antes de ajustar distribuciones, verificamos el tipo de dato y la presencia de valores faltantes. Esto evita problemas en los contrastes y asegura que la inferencia se haga sobre la misma información.
+
+---
+
+### **3.1.1 Bondad de ajuste para eventos_poisson (discreta)**
+
+**Exploración básica (media vs varianza, histograma discreto)**
+
+> **Teoría importante (Poisson):** si \(X \sim \text{Poisson}(\lambda)\), entonces  
+\[
+E(X)=\lambda \quad \text{y} \quad Var(X)=\lambda
+\]
+
+Por eso, comparar la media y varianza muestral ayuda a detectar **equidispersión**. En el contexto de variables de conteo, como eventos_poisson, una propiedad clave de la distribución Poisson es la equidispersión, es decir, que el valor esperado y la varianza poblacional coinciden.
+
+Esta propiedad se evalúa de manera exploratoria comparando la media muestral con la varianza muestral. Si ambas son similares, existe evidencia a favor de equidispersión; si la varianza es mucho mayor que la media, se sospecha sobredispersión, y si es menor, subdispersión. Pero es importante decir que esta comparación no constituye una prueba formal, pero es un diagnóstico inicial.
+
+En los datos analizados se obtuvo el siguiente resumen:
+
+- Tamaño muestral: \( n = 200 \)
+- Media muestral: \( \bar{x} = 3.5 \)
+- Varianza muestral: \( s^2 = 3.3467 \)
+
+Se observa que la media y la varianza presentan valores muy cercanos, lo cual sugiere la presencia de equidispersión en los datos. Este resultado es coherente con el supuesto de una distribución Poisson y respalda su uso como modelo candidato para describir el número de visitas a emergencia por paciente. No obstante, esta evidencia exploratoria debe complementarse con una prueba formal de bondad de ajuste, como la prueba Chi–cuadrado, que se presenta en la siguiente sección.
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+x <- datos$eventos_poisson
+x <- x[!is.na(x)]
+
+tabla_resumen_x <- data.frame(
+  n = length(x),
+  min = min(x),
+  max = max(x),
+  media = mean(x),
+  varianza = var(x)
+)
+
+kable(tabla_resumen_x, format="html", caption="Resumen de eventos_poisson") %>%
+  kable_styling(full_width = FALSE,
+                bootstrap_options = c("striped","hover","condensed"))
+
+ggplot(data.frame(x=x), aes(x=factor(x))) +
+  geom_bar() +
+  labs(x="Número de visitas (conteo)", y="Frecuencia",
+       title="Distribución observada de eventos_poisson")
+```
+
+El histograma muestra la distribución empírica del número de visitas a emergencia por paciente, una variable de conteo discreta. Se observa que:
+
+La mayor concentración de observaciones se encuentra alrededor de los valores 2, 3 y 4 visitas, siendo 3 el valor más frecuente, lo cual es coherente con la media muestral \( \bar{x} = 3.5 \)
+
+La distribución presenta asimetría positiva, con una cola hacia la derecha, característica típica de una distribución Poisson.
+
+La frecuencia disminuye progresivamente a medida que aumenta el número de visitas, y los valores grandes (por ejemplo, 7, 8 o 9 visitas) aparecen con baja frecuencia, lo cual es esperado en un modelo Poisson con𝜆moderado. La masa principal se concentra cerca del valor de la media
+
+
+---
+
+### **3.1.2 Ajuste a Poisson(λ) y prueba Chi-cuadrado**
+
+### **Hipótesis**
+- **H0:** \(X \sim \text{Poisson}(\lambda)\)  
+- **H1:** \(X\) no sigue Poisson(\(\lambda\))
+
+### **Estimación del parámetro**
+Para Poisson, el estimador natural es:
+\[
+\hat{\lambda} = \bar{X}
+\]
+
+### **Prueba Chi-cuadrado**
+Con el objetivo de evaluar si la variable eventos_poisson puede modelarse mediante una distribución Poisson, se aplicó una prueba Chi-cuadrado de bondad de ajuste. Esta prueba compara las frecuencias observadas en los datos con las frecuencias esperadas bajo una distribución Poisson con parámetro 𝜆,estimado a partir de la media muestral. Para garantizar la validez del contraste, se agruparon las categorías de mayor valor cuando fue necesario, asegurando que las frecuencias esperadas no sean demasiado pequeñas (la regla práctica dice al menos 5).
+
+En la tabla de frecuencias, \(k\) representa los posibles valores del número de visitas (conteos), *obs* corresponde a las frecuencias observadas en la muestra para cada valor de \(k\), mientras que *exp* indica las frecuencias esperadas bajo el modelo Poisson ajustado con \(\hat{\lambda} = 3.5\). La comparación entre ambas columnas permite evaluar qué tan cercanos son los datos reales al comportamiento teórico esperado. Se observa que las frecuencias observadas y esperadas son bastante similares en la mayoría de las categorías, lo cual respalda el buen ajuste del modelo Poisson.
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+lambda_hat <- mean(x)
+
+# Frecuencias observadas
+obs_tab <- table(x)
+k_vals <- as.integer(names(obs_tab))
+
+# Esperadas bajo Poisson(lambda_hat)
+p_exp <- dpois(k_vals, lambda_hat)
+exp_freq <- length(x) * p_exp
+
+df_gof <- data.frame(
+  k = k_vals,
+  obs = as.numeric(obs_tab),
+  exp = as.numeric(exp_freq)
+)
+
+# Agrupar colas para que exp >= 5
+agrupar_colas <- function(df, umbral=5){
+  df <- df[order(df$k), ]
+  while(nrow(df) > 1 && df$exp[1] < umbral){
+    df$k[2] <- paste0(df$k[1], "-", df$k[2])
+    df$obs[2] <- df$obs[1] + df$obs[2]
+    df$exp[2] <- df$exp[1] + df$exp[2]
+    df <- df[-1, ]
+  }
+  while(nrow(df) > 1 && df$exp[nrow(df)] < umbral){
+    n <- nrow(df)
+    df$k[n-1] <- paste0(df$k[n-1], "-", df$k[n])
+    df$obs[n-1] <- df$obs[n-1] + df$obs[n]
+    df$exp[n-1] <- df$exp[n-1] + df$exp[n]
+    df <- df[-n, ]
+  }
+  df
+}
+
+df_gof2 <- agrupar_colas(df_gof, umbral=5)
+
+# Estadístico Chi-cuadrado
+chi2 <- sum((df_gof2$obs - df_gof2$exp)^2 / df_gof2$exp)
+
+# gl = (#clases) - 1 - (#parámetros estimados)
+gl <- nrow(df_gof2) - 1 - 1  # se estima lambda
+
+p_val <- 1 - pchisq(chi2, df=gl)
+
+kable(df_gof2, format="html",
+      caption=paste0("GOF Poisson: Observadas vs Esperadas (λ̂=", round(lambda_hat,3), ")")) %>%
+  kable_styling(full_width = FALSE,
+                bootstrap_options = c("striped","hover","condensed"))
+
+kable(data.frame(
+  lambda_hat = lambda_hat,
+  chi2 = chi2,
+  gl = gl,
+  p_value = p_val
+), format="html", caption="Prueba Chi-cuadrado de bondad de ajuste (Poisson)") %>%
+  kable_styling(full_width = FALSE,
+                bootstrap_options = c("striped","hover","condensed"))
+```
+
+
+### **Interpretación**
+
+En este caso el p valor obtenido fue de **0.14** el cual es superior a 0.05, por lo tanto no se rechaza Ho, entonces Poisson es compatible con los datos
+
+---
+
+### **3.1.3 Gráfico Observado vs Esperado (Poisson)**
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Usamos el df sin agrupar para ver detalle fino
+df_plot <- df_gof %>%
+  mutate(k = as.numeric(k))
+
+ggplot(df_plot, aes(x=k)) +
+  geom_col(aes(y=obs), alpha=0.8) +
+  geom_point(aes(y=exp), size=2) +
+  geom_line(aes(y=exp), linewidth=0.8) +
+  labs(x="k", y="Frecuencia",
+       title=paste0("Observado (barras) vs Esperado (línea) Poisson, λ̂=", round(lambda_hat,3)))
+```
+
+En el gráfico Observado vs Esperado se comparan las frecuencias observadas (barras) del número de visitas con las frecuencias esperadas bajo una distribución Poisson con parámetro estimado \(\hat{\lambda} = 3.5\) (línea). 
+
+Se aprecia que, para la mayoría de los valores de \(k\), las barras se encuentran cercanas a la curva teórica, lo que indica una buena relación entre los datos empíricos y el modelo Poisson ajustado. Las mayores discrepancias se presentan únicamente en los extremos, donde las frecuencias son bajas, lo cual es esperable en distribuciones de conteo. El gráfico respalda visualmente el resultado de la prueba Chi-cuadrado, sugiriendo que el modelo Poisson es adecuado para describir el comportamiento del número de visitas a emergencia.
+
+
+---
+
+### **3.1.4 Bondad de ajuste para tiempo_recuperacion (continua positiva)**
+
+### **3.1.5 Exploración y candidatos**
+
+Dado que la variable *tiempo_recuperacion* mide el número de días transcurridos hasta la recuperación de un paciente, se trata de una variable continua y estrictamente positiva. Este tipo de variables suele presentar asimetría a la derecha, ya que la mayoría de los pacientes se recupera en un tiempo relativamente corto, mientras que un grupo reducido puede requerir periodos mucho más prolongados. 
+
+Por eso, se consideran distribuciones continuas definidas en el soporte positivo, como la Exponencial, que asume un riesgo constante en el tiempo; la Gamma y la Weibull, que permiten mayor flexibilidad en la forma de la distribución; y también la Lognormal, que es adecuada para variables con fuerte asimetría y colas largas hacia la derecha.
+
+Por otro lado, el tiempo de recuperación presenta un valor mínimo de 0.15 días y un valor máximo de 357.36 días, lo que evidencia una alta variabilidad entre pacientes. La media muestral es de 47.72 días, mientras que la mediana es de 35.02 días, lo cual indica una clara asimetría positiva, ya que la media es mayor que la mediana. Esta diferencia sugiere la presencia de valores extremos elevados que alargan la cola derecha de la distribución. 
+
+Además, la desviación estándar cercana a la media refuerza la idea de una distribución dispersa y no simétrica, lo que respalda la necesidad de evaluar modelos distintos a la Normal para describir adecuadamente el tiempo de recuperación.
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+t <- datos$tiempo_recuperacion
+t <- t[!is.na(t) & t > 0]
+
+kable(data.frame(
+  n = length(t),
+  min = min(t),
+  max = max(t),
+  media = mean(t),
+  sd = sd(t),
+  mediana = median(t)
+), format="html", caption="Resumen de tiempo_recuperacion") %>%
+  kable_styling(full_width = FALSE,
+                bootstrap_options = c("striped","hover","condensed"))
+
+ggplot(data.frame(t=t), aes(x=t)) +
+  geom_histogram(bins=25) +
+  labs(x="Días", y="Frecuencia",
+       title="Histograma de tiempo_recuperacion")
+```
+
+El histograma del *tiempo_recuperacion* muestra una distribución  asimétrica a la derecha. La mayor concentración de observaciones se encuentra en tiempos de recuperación bajos, mientras que existe una cola larga hacia valores altos, lo que indica la presencia de algunos pacientes con periodos de recuperación prolongados. Este patrón es característico de variables continuas positivas y confirma haber elegido distribuciones como la Exponencial, Gamma, Weibull o Lognormal para el análisis de bondad de ajuste.
+
+---
+
+### **3.1.6 Ajuste por máxima verosimilitud + comparación AIC/BIC**
+
+El método de máxima verosimilitud consiste en estimar los parámetros del modelo que hacen más probable la muestra observada, bajo el supuesto de una distribución específica. Este enfoque es ampliamente utilizado en inferencia estadística debido a sus buenas propiedades asintóticas, como consistencia y eficiencia, y porque permite comparar distintos modelos ajustados a los mismos datos de manera objetiva.
+
+En este estudio, las distribuciones candidatas para la variable *tiempo_recuperacion* fueron ajustadas mediante máxima verosimilitud y luego  comparadas utilizando los criterios de información AIC y BIC. Ambos criterios penalizan la complejidad de la distribución ajustada, favoreciendo aquella que logra un mejor equilibrio entre calidad de ajuste y parsimonia. La distribución con el menor valor de AIC se considera la más adecuada entre las comparadas; si AIC y BIC coinciden en señalar la misma distribución, la elección resulta se justifica más.
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(fitdistrplus)
+
+fit_exp  <- fitdist(t, "exp")
+fit_gam  <- fitdist(t, "gamma")
+fit_wei  <- fitdist(t, "weibull")
+fit_lnor <- fitdist(t, "lnorm")
+
+gof <- gofstat(
+  list(fit_exp, fit_gam, fit_wei, fit_lnor),
+  fitnames = c("Exponencial","Gamma","Weibull","Lognormal")
+)
+
+tabla_comp <- data.frame(
+  Modelo = names(gof$aic),
+  AIC = as.numeric(gof$aic),
+  BIC = as.numeric(gof$bic)
+) %>% arrange(AIC)
+
+kable(tabla_comp, format="html",
+      caption="Comparación de ajuste para tiempo_recuperacion (AIC/BIC)") %>%
+  kable_styling(full_width = FALSE,
+                bootstrap_options = c("striped","hover","condensed"))
+```
+
+A partir de la tabla de comparación, se observa que el modelo Exponencial presenta los valores más bajos tanto de AIC como de BIC, lo que sugiere que es el modelo que mejor describe el comportamiento del tiempo de recuperación entre los considerados. Los modelos Gamma y Weibull muestran valores cercanos, mientras que el modelo Lognormal presenta un ajuste claramente inferior según ambos criterios.
+
+
+---
+
+### **3.1.7 Gráficos diagnósticos (densidad, QQ, PP, CDF)**
+
+La **densidad empírica vs teórica** muestra que el modelo reproduce adecuadamente la asimetría positiva y la forma general de los datos.  
+El **gráfico Q–Q** nos dice que hay un buen ajuste en los cuantiles centrales, con ligeras desviaciones en la cola derecha asociadas a valores extremos.  
+La **CDF empírica vs teórica** evidencia una concordancia global en la acumulación de probabilidades a lo largo del rango de datos.  
+El **gráfico P–P** tiene alineación cercana a la diagonal, lo que respalda un ajuste razonable del modelo en términos de probabilidades.
+
+Estos gráficos diagnósticos complementan la prueba formal de bondad de ajuste, ya que permiten evaluar visualmente qué tan bien la distribución seleccionada reproduce la forma, los cuantiles y las probabilidades observadas en los datos. La concordancia observada en la densidad, la CDF y los gráficos Q–Q y P–P es coherente con los resultados obtenidos mediante los criterios AIC/BIC, reforzando la evidencia de un ajuste adecuado de la distribución elegida.
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+par(mfrow = c(2,2))
+plot(fit_lnor)
+par(mfrow = c(1,1))
+```
+
+
+
+## **3.2 Estimadores y propiedades**
+
+Dado que la variable **eventos_poisson** corresponde a un conteo de visitas a emergencia y, según la prueba de bondad de ajuste, es compatible con una distribución Poisson, se asume que
+\[
+X_1,\dots,X_n \overset{iid}{\sim}\text{Poisson}(\lambda),
+\]
+donde \(\lambda>0\) representa el número promedio de visitas a emergencia por paciente. A continuación, se proponen al menos cinco estimadores puntuales de \(\lambda\) y se verifican propiedades como insesgamiento (o sesgo), consistencia y eficiencia (cuando aplica).
+
+
+
+---
+
+## **3.2.1 Estimadores de \(\lambda\)**
+
+En el caso de la distribución Poisson, varios procedimientos clásicos de estimación conducen al mismo estimador puntual del parámetro \(\lambda\). En particular, el estimador por máxima verosimilitud, el estimador por el método de momentos y la media muestral coinciden numéricamente en \(\bar{X}\).
+
+Sin embargo, dado que el objetivo del estudio es analizar y comparar propiedades estadísticas de distintos estimadores, se incorporan además estimadores alternativos conceptualmente diferentes, construidos a partir de la varianza muestral, la proporción de ceros y una aproximación basada en la mediana.
+
+
+1) **Media muestral**  
+\[
+\hat\lambda_1=\bar X
+\]
+
+2) **Estimador por máxima verosimilitud (MV)**  
+Para Poisson, el MV coincide con la media:
+\[
+\hat\lambda_2=\bar X
+\]
+
+3) **Método de momentos (MM)**  
+Igualando \(E(X)=\lambda\) con \(\bar X\):
+\[
+\hat\lambda_3=\bar X
+\]
+
+4) **Estimador por varianza (usando \(Var(X)=\lambda\))**  
+\[
+\hat\lambda_4=S^2
+\]
+donde \(S^2\) es la varianza muestral.
+
+5) **Estimador basado en la proporción de ceros**  
+En Poisson:
+\[
+P(X=0)=e^{-\lambda}
+\Rightarrow \lambda=-\ln(P(X=0))
+\]
+Estimador:
+\[
+\hat\lambda_5=-\ln(\hat p_0),\quad \hat p_0=\frac{\#\{X_i=0\}}{n}
+\]
+
+6) **Estimador basado en la mediana** (aprox.)  
+La mediana de Poisson cumple aproximadamente \( \text{Med}(X)\approx \lambda - 1/3\).  
+Entonces:
+\[
+\hat\lambda_6=\text{Med}(X)+\frac{1}{3}
+\]
+
+
+---
+
+**Cálculo en nuestra muestra**
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+lambda_1 <- mean(x)                   # media
+lambda_4 <- var(x)                    # varianza muestral
+p0_hat   <- mean(x == 0)              # proporción de ceros
+lambda_5 <- -log(p0_hat)              # por ceros (si p0_hat > 0)
+lambda_6 <- median(x) + 1/3           # aprox por mediana
+
+res_est <- data.frame(
+  Estimador = c("λ̂1 = media (X̄)",
+                "λ̂2 = MV (coincide con X̄)",
+                "λ̂3 = momentos (coincide con X̄)",
+                "λ̂4 = varianza (S²)",
+                "λ̂5 = por ceros  -ln(p0hat)",
+                "λ̂6 = mediana + 1/3 (aprox)"),
+  Valor = c(lambda_1, lambda_1, lambda_1, lambda_4, lambda_5, lambda_6)
+)
+
+kable(res_est, format="html", caption="Estimadores de λ calculados con la muestra") %>%
+  kable_styling(full_width = FALSE,
+                bootstrap_options = c("striped","hover","condensed"))
+```
+
+En la Tabla se presentan los valores de los distintos estimadores puntuales del parámetro \(\lambda\) calculados a partir de la muestra observada. Se observa que la media muestral, el estimador de máxima verosimilitud y el estimador por método de momentos coinciden exactamente, lo cual es consistente con la teoría de la distribución Poisson, donde estos tres enfoques conducen al mismo estimador. 
+
+El estimador basado en la varianza muestral toma un valor ligeramente menor, lo que refleja la variabilidad propia de \(S^2\) en muestras finitas. Por su parte, el estimador basado en la proporción de ceros produce un valor algo mayor, debido a la sensibilidad del logaritmo frente a pequeñas variaciones en la frecuencia de ceros observados. Finalmente, el estimador basado en la mediana constituye una aproximación robusta, cuyo valor cercano a los anteriores sugiere que no existen asimetrías extremas ni valores atípicos severos en la muestra. 
+
+En resumen, la cercanía entre los distintos estimadores muestran la estabilidad de la estimación de \(\lambda\) y la adecuación del supuesto Poisson para los datos analizados.
+
+---
+
+## **3.2.1 Verificación de propiedades**
+
+### **3.2.1.1 Insesgadez**
+
+Para verificar empíricamente las propiedades de los estimadores propuestos, se realizó un estudio de simulación Monte Carlo bajo el supuesto \(X_1,\dots,X_n \sim \text{Poisson}(\lambda_0)\), con \(\lambda_0 = 3.5\), tamaño muestral \(n = 200\) y \(B = 20000\) réplicas. En cada simulación se generó una muestra Poisson y se calcularon los distintos estimadores de \(\lambda\). A partir de estas réplicas se estimaron el sesgo, la varianza y el error cuadrático medio (ECM) de cada estimador.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+set.seed(123)
+
+# =========================
+# Parámetros de simulación
+# =========================
+x_real <- datos$eventos_poisson   # datos reales
+n <- length(x_real)               # tamaño muestral
+lambda0 <- mean(x_real)           # valor de referencia (λ₀)
+B <- 20000                        # número de simulaciones Monte Carlo
+
+# =========================
+# Función que calcula estimadores
+# =========================
+calc_estimadores <- function(xs){
+
+  p0 <- mean(xs == 0)
+
+  c(
+    lam1 = mean(xs),                    # λ̂₁ = media muestral
+    lam4 = var(xs),                     # λ̂₄ = varianza muestral
+    lam5 = ifelse(p0 > 0, -log(p0), NA),# λ̂₅ = estimador por ceros
+    lam6 = median(xs) + 1/3             # λ̂₆ = mediana + 1/3
+  )
+}
+
+# =========================
+# Simulación Monte Carlo
+# =========================
+sim <- replicate(
+  B,
+  calc_estimadores(rpois(n = n, lambda = lambda0))
+)
+
+sim <- t(sim) |> as.data.frame()
+
+# =========================
+# Sesgo, varianza y ECM
+# =========================
+res_mc <- data.frame(
+  Estimador = c("λ̂₁ = X̄", "λ̂₄ = S²", "λ̂₅ = −ln(p̂₀)", "λ̂₆ = Med + 1/3"),
+  Sesgo = colMeans(sim - lambda0, na.rm = TRUE),
+  Varianza = apply(sim, 2, var, na.rm = TRUE),
+  ECM = colMeans((sim - lambda0)^2, na.rm = TRUE)
+)
+
+kable(
+  res_mc,
+  format = "html",
+  digits = 4,
+  caption = paste0(
+    "Verificación Monte Carlo del insesgamiento (λ₀ = ",
+    round(lambda0, 3),
+    ", n = ", n,
+    ", B = ", B, ")"
+  )
+) %>%
+  kable_styling(
+    full_width = FALSE,
+    bootstrap_options = c("striped", "hover", "condensed")
+  )
+```
+
+
+Los resultados muestran que la media muestral presenta un sesgo prácticamente nulo y el menor ECM, confirmando empíricamente que es un estimador **insesgado** y eficiente para \(\lambda\) en el caso Poisson. El estimador basado en la varianza muestral exhibe un sesgo pequeño, pero una varianza considerablemente mayor, lo que incrementa su ECM y lo vuelve menos eficiente. 
+
+El estimador basado en la proporción de ceros presenta un sesgo positivo apreciable y el mayor ECM, reflejando la sensibilidad de este método a la variabilidad muestral y a la no linealidad del logaritmo. Finalmente, el estimador basado en la mediana muestra un sesgo leve y una varianza intermedia, comportándose como una alternativa más robusta, aunque menos eficiente que la media muestral.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+set.seed(123)
+
+# Variable original
+eventos_poisson <- datos$eventos_poisson
+x <- eventos_poisson
+
+# Valor verdadero (referencia)
+lambda0 <- mean(x)
+
+# Tamaños muestrales crecientes
+n_vec <- c(20, 50, 100, 200, 500)
+
+# Número de simulaciones Monte Carlo
+B <- 10000
+```
+
+
+---
+
+### **3.2.1.2 Consistencia**
+
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+calc_estimadores <- function(xs){
+  
+  p0 <- mean(xs == 0)
+  
+  c(
+    lam1 = mean(xs),                 # Media
+    lam4 = var(xs),                  # Varianza
+    lam5 = ifelse(p0 > 0, -log(p0), NA), # Por ceros
+    lam6 = median(xs) + 1/3          # Mediana + 1/3
+  )
+}
+```
+
+
+---
+
+**Simulación Monte Carlo por tamaño muestral**
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+res_consistencia <- lapply(n_vec, function(n){
+  
+  sim <- replicate(
+    B,
+    calc_estimadores(rpois(n, lambda0))
+  )
+  
+  sim <- as.data.frame(t(sim))
+  
+  data.frame(
+    n = n,
+    Estimador = c("X̄", "S²", "−ln(p̂₀)", "Med + 1/3"),
+    Sesgo = c(mean(sim$lam1 - lambda0, na.rm = TRUE),
+              mean(sim$lam4 - lambda0, na.rm = TRUE),
+              mean(sim$lam5 - lambda0, na.rm = TRUE),
+              mean(sim$lam6 - lambda0, na.rm = TRUE)),
+    Varianza = c(var(sim$lam1, na.rm = TRUE),
+                 var(sim$lam4, na.rm = TRUE),
+                 var(sim$lam5, na.rm = TRUE),
+                 var(sim$lam6, na.rm = TRUE))
+  )
+})
+
+res_consistencia <- do.call(rbind, res_consistencia)
+```
+
+
+---
+
+**Tabla final**
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+knitr::kable(
+  res_consistencia,
+  digits = 4,
+  caption = "Verificación Monte Carlo de la consistencia de los estimadores de λ"
+)
+```
+
+La consistencia de los estimadores se evalúa observando su comportamiento a medida que aumenta el tamaño muestral. En la Tabla se aprecia que, para todos los estimadores considerados, el sesgo se mantiene cercano a cero o disminuye progresivamente, mientras que la varianza decrece de forma sistemática conforme aumenta \(n\). Este patrón indica que los estimadores convergen al verdadero valor del parámetro \(\lambda\), lo cual constituye evidencia empírica de su **consistencia**, en concordancia con los resultados teóricos del modelo Poisson.
+
+
+### **3.2.1.3 Eficiencia**
+
+En esta sección se evalúa la **eficiencia** de los estimadores propuestos para el parámetro \(\lambda\) del modelo Poisson, comparando su **varianza empírica**, obtenida mediante simulación Monte Carlo, con la **cota inferior de Cramér–Rao (CRLB)**.
+
+Para una muestra aleatoria \(X_1, \dots, X_n \sim \text{Poisson}(\lambda)\), la cota de Cramér–Rao para cualquier estimador insesgado de \(\lambda\) está dada por:
+
+\[
+\text{CRLB} = \frac{\lambda}{n}.
+\]
+
+Un estimador se considera **eficiente** si su varianza alcanza dicha cota, es decir, si su varianza es igual (o prácticamente igual) a la CRLB
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(knitr)
+library(kableExtra)
+
+# 1. Aseguramos que lambda0 exista (usaremos 3.5 como ejemplo)
+lambda0 <- 3.5 
+B <- 20000
+n_vals <- c(20, 50, 100, 200, 500)
+
+calc_estimadores <- function(xs){
+  p0 <- mean(xs == 0)
+  c(
+    Xbar = mean(xs),
+    S2   = var(xs),
+    Zeros = ifelse(p0 > 0, -log(p0), NA),
+    Med13 = median(xs) + 1/3
+  )
+}
+
+res_eff <- data.frame()
+
+for(n in n_vals){
+  sim <- replicate(B, calc_estimadores(rpois(n, lambda0)))
+  sim <- t(sim)
+  
+  # Calculamos la varianza de cada columna de la simulación
+  vars_empiricas <- apply(sim, 2, var, na.rm = TRUE)
+  
+  # CREACIÓN EXPLÍCITA DEL DATAFRAME
+  tmp <- data.frame(
+    n = rep(n, 4),
+    Estimador = c("Media (Xbar)", "Varianza (S2)", "Ceros (-ln p0)", "Mediana + 1/3"),
+    Varianza_empirica = as.numeric(vars_empiricas),
+    CRLB = rep(lambda0 / n, 4) # Forzamos a que se repita el valor para cada fila
+  )
+  
+  res_eff <- rbind(res_eff, tmp)
+}
+
+# 2. Renderizado de la tabla forzando mostrar todas las columnas
+kable(
+  res_eff,
+  digits = 4,
+  format = "html", # Forzamos formato HTML para asegurar visibilidad en RMarkdown
+  caption = "Verificación de Eficiencia de Cramér-Rao"
+) %>%
+  kable_styling(full_width = F, bootstrap_options = c("striped", "bordered"))
+```
+
+
+
+A partir de los resultados obtenidos, se observa que el **estimador basado en la media muestral**, \(\bar{X}\), presenta una varianza empírica prácticamente idéntica a la cota de Cramér–Rao para todos los tamaños muestrales considerados (\(n = 20, 50, 100, 200, 500\)). Este comportamiento confirma empíricamente que \(\bar{X}\) es un **estimador eficiente de \(\lambda\)** en el modelo Poisson, en concordancia con la teoría estadística clásica.
+
+En contraste, los estimadores alternativos —basados en la varianza muestral \(S^2\), la proporción de ceros \(-\ln(\hat{p}_0)\) y la aproximación mediante la mediana— presentan varianzas empíricas **mayores que la CRLB** para todos los tamaños muestrales analizados. Si bien estos estimadores pueden ser consistentes, **no son eficientes**, ya que no alcanzan la mínima varianza teórica posible.
+
+En conclusión, los resultados teóricos y empíricos muestran que la **media muestral \(\bar{X}\)** es el único estimador que alcanza la cota de Cramér–Rao y, por tanto, es **eficiente**, mientras que los demás estimadores no.
+
+### **3.2.1.4 Suficiencia y ancilaridad**
+
+En el modelo Poisson, si \(X_1, \dots, X_n \sim \text{Poisson}(\lambda)\), la función de verosimilitud depende de los datos únicamente a través de la suma
+\[
+T = \sum_{i=1}^n X_i.
+\]
+Por el **teorema de factorización de Neyman–Fisher**, esta estadística es **suficiente** para el parámetro \(\lambda\). En consecuencia, la media muestral \(\bar{X} = T/n\) también es una estadística suficiente para \(\lambda\).
+
+Respecto a la **ancilaridad**, no existe en el modelo Poisson una estadística ancilar no trivial útil para inferencia sobre \(\lambda\), ya que la distribución de las estadísticas relevantes (sumas, medias, varianzas o conteos) depende explícitamente del parámetro. Por tanto, la ancilaridad **no es importante** en la inferencia para el parámetro \(\lambda\) en este contexto.
+
+---
+
+## **3.3 Intervalos de confianza**
+
+### **3.3.1 Basado en la Media muestral**
+
+En este caso, se utilizó el **Método de la Cantidad Pivotal** debido a su exactitud estadística. A diferencia de las aproximaciones normales, este método aprovecha la relación teórica entre la distribución Poisson y la Chi-cuadrado ($\chi^2$). Esto permite obtener límites de confianza precisos que garantizan la cobertura exacta del parámetro $\lambda$, independientemente del tamaño de la muestra.
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# =====================================================
+# 3.2.2 Intervalo de Confianza: Método de la Cantidad Pivotal
+# =====================================================
+
+# 1. Extracción correcta del vector de datos
+# Asegúrate de que 'datos' sea el nombre de tu dataframe
+x_vec <- datos$eventos_poisson 
+
+# 2. Parámetros
+n <- length(x_vec)        # n = 200
+S <- sum(x_vec)           # Suma de eventos (S = 700)
+alfa <- 0.05              # Confianza del 95%
+
+# 3. Aplicación del Método del Pivote (Distribución Chi-cuadrado)
+# Basado exactamente en el Script del Profesor Miranda
+li <- qchisq(alfa/2, 2 * S) / (2 * n)
+ls <- qchisq(1 - alfa/2, 2 * (S + 1)) / (2 * n)
+
+# 4. Presentación de resultados en formato Tabla
+res_pivotal <- data.frame(
+  Metodo = "Pivotal (Chi-cuadrado)",
+  Límite_Inferior = li,
+  Límite_Superior = ls,
+  Longitud = ls - li
+)
+
+knitr::kable(
+  res_pivotal, 
+  digits = 4,
+  caption = "Intervalo de Confianza al 95% para λ (Método Pivotal)"
+) %>%
+  kableExtra::kable_styling(full_width = F, bootstrap_options = c("striped", "hover"))
+```
+
+Con un nivel de confianza del 95% ($\alpha = 0.05$), el verdadero valor del parámetro $\lambda$ (promedio de eventos clínicos) se encuentra comprendido entre 3.2458 y 3.7656. Dado que el intervalo es estrecho (longitud $\approx 0.52$), los resultados sugieren que la estimación puntual de 3.5 es altamente precisa para describir el comportamiento de la población bajo estudio.
+
+### **3.3.2 Basado en Máxima Verosimilitud**
+
+Se utilizó el **Método Estadístico** aprovechando la propiedad de normalidad asintótica del estimador de máxima verosimilitud. Este enfoque permite construir el intervalo a partir del error estándar derivado de la información de Fisher, siendo una herramienta eficiente y clásica para muestras grandes ($n=200$) donde la distribución del estimador converge a una Normal.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# =====================================================
+# 3.2.3 Intervalo de Confianza: Método Estadístico (MV)
+# =====================================================
+
+# 1. Parámetros del Estimador de Máxima Verosimilitud
+lambda_mv <- mean(datos$eventos_poisson) # λ̂ = 3.5
+n <- length(datos$eventos_poisson)       # n = 200
+alfa <- 0.05
+
+# 2. Cálculo del Error Estándar (basado en la Información de Fisher)
+# Para Poisson, Var(λ̂) = λ/n
+error_estandar <- sqrt(lambda_mv / n)
+
+# 3. Valor crítico de la Normal Estándar
+z <- qnorm(1 - alfa/2)
+
+# 4. Límites del Intervalo
+li_est <- lambda_mv - z * error_estandar
+ls_est <- lambda_mv + z * error_estandar
+
+# 5. Resultados en Tabla
+res_estadistico <- data.frame(
+  Metodo = "Estadístico (Asintótico MV)",
+  Límite_Inferior = li_est,
+  Límite_Superior = ls_est,
+  Longitud = ls_est - li_est
+)
+
+knitr::kable(
+  res_estadistico, 
+  digits = 4,
+  caption = "Intervalo de Confianza al 95% (Método Estadístico)"
+) %>%
+  kableExtra::kable_styling(full_width = F, bootstrap_options = c("striped", "bordered"))
+```
+
+Con un 95% de confianza, $\lambda$ se sitúa entre 3.2407 y 3.7593. Al comparar con el método pivotal, se observa que los límites son sumamente similares, lo que valida la precisión de la aproximación normal para este conjunto de datos.
+
+
+### **3.3.3 Basado en Método de Momentos**
+
+Se aplicó el **Método Aleatorio** por ser una técnica robusta que no depende de supuestos de distribución asintótica. Al realizar 10,000 remuestreos con reemplazo de la muestra original de 200 pacientes, se generó una distribución empírica para el estimador de momentos. Esto permite obtener límites de confianza basados en los percentiles de la simulación, reflejando la variabilidad real de los datos observados.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# =====================================================
+# 3.2.4 Intervalo de Confianza: Método Aleatorio (Bootstrap)
+# =====================================================
+
+# 1. Configuración de la simulación Bootstrap
+set.seed(123) # Para que los resultados sean replicables
+B <- 10000    # Número de remuestreos (clásico en el curso)
+n <- length(datos$eventos_poisson)
+estimaciones_boot <- numeric(B)
+
+# 2. Proceso de remuestreo (Bootstrap para Método de Momentos)
+for(i in 1:B) {
+  # Tomamos una muestra con reemplazo de los datos originales
+  muestra_aux <- sample(datos$eventos_poisson, size = n, replace = TRUE)
+  # Calculamos el estimador de momentos (media) para esa muestra
+  estimaciones_boot[i] <- mean(muestra_aux)
+}
+
+# 3. Cálculo de los límites por el método de percentiles
+alfa <- 0.05
+li_boot <- quantile(estimaciones_boot, alfa/2)
+ls_boot <- quantile(estimaciones_boot, 1 - alfa/2)
+
+# 4. Resultados en Tabla
+res_bootstrap <- data.frame(
+  Metodo = "Aleatorio (Bootstrap)",
+  Límite_Inferior = as.numeric(li_boot),
+  Límite_Superior = as.numeric(ls_boot),
+  Longitud = as.numeric(ls_boot - li_boot)
+)
+
+knitr::kable(
+  res_bootstrap, 
+  digits = 4,
+  caption = "Intervalo de Confianza al 95% para λ (Método Bootstrap)"
+) %>%
+  kableExtra::kable_styling(full_width = F, bootstrap_options = c("striped", "hover"))
+```
+
+Con un 95% de confianza, $\lambda$ se encuentra entre 3.2499 y 3.76 (los valores exactos dependerán de la simulación). La similitud de este intervalo con los métodos anteriores confirma que el estimador es sumamente estable y que la muestra de 200 individuos es lo suficientemente grande como para que todos los enfoques converjan a resultados casi idénticos.
+
+### **3.3.4 Basado en la varianza**
+
+Se utilizó el **Método Aleatorio** para el estimador $\hat{\lambda}_4 = S^2$ debido a que la varianza muestral presenta una distribución de muestreo con mayor dispersión que la media. Dado que no se dispone de una cantidad pivotal exacta y sencilla para la varianza en una población Poisson, el remuestreo permite estimar los límites de confianza de forma empírica, capturando la asimetría potencial de la distribución de $S^2$ sin forzar un supuesto de normalidad que podría no cumplirse en muestras finitas.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# =====================================================
+# 3.2.5 Intervalo de Confianza para S²: Método Aleatorio (Bootstrap)
+# =====================================================
+
+# 1. Configuración
+set.seed(123)
+B <- 10000
+n <- length(datos$eventos_poisson)
+boot_s2 <- numeric(B)
+
+# 2. Remuestreo Bootstrap enfocado en la Varianza
+for(i in 1:B) {
+  # Generamos una muestra con reemplazo
+  muestra_aux <- sample(datos$eventos_poisson, size = n, replace = TRUE)
+  # Calculamos el estimador de interés: la varianza muestral
+  boot_s2[i] <- var(muestra_aux)
+}
+
+# 3. Cálculo de límites por percentiles (Alfa = 0.05)
+alfa <- 0.05
+li_s2 <- quantile(boot_s2, alfa/2)
+ls_s2 <- quantile(boot_s2, 1 - alfa/2)
+
+# 4. Resultados en Tabla
+res_s2 <- data.frame(
+  Metodo = "Bootstrap (Varianza S²)",
+  Límite_Inferior = as.numeric(li_s2),
+  Límite_Superior = as.numeric(ls_s2),
+  Longitud = as.numeric(ls_s2 - li_s2)
+)
+
+knitr::kable(
+  res_s2, 
+  digits = 4,
+  caption = "Intervalo de Confianza al 95% para λ usando S² (Bootstrap)"
+) %>%
+  kableExtra::kable_styling(full_width = F, bootstrap_options = c("striped", "hover"))
+```
+
+Con un nivel de confianza del 95% ($\alpha = 0.05$), el intervalo para el parámetro $\lambda$ obtenido mediante el estimador de la varianza muestral ($S^2$) es [2.6700, 4.0300]. Este intervalo presenta una longitud de 1.36, siendo el más amplio de todos los métodos aplicados. Esta mayor dispersión confirma empíricamente que la varianza es un estimador menos eficiente que la media para el modelo Poisson.
+
+### **3.3.5 Basado en la proporción de ceros**
+
+Se utilizó el **Método Aleatorio** para el estimador $\hat{\lambda}_5$ debido a que su construcción depende de una función logarítmica de la proporción de observaciones nulas. Como es con una estructura analítica compleja, el remuestreo  permite obtener una distribución empírica de $\hat{p}_0$ y transformarla para hallar los límites de confianza del parámetro $\lambda$ de forma directa, sin requerir la derivación de fórmulas de error estándar.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# =====================================================
+# 3.2.6 Intervalo de Confianza para λ₅ (Por Ceros): Bootstrap
+# =====================================================
+
+# 1. Configuración del remuestreo
+set.seed(123)
+B <- 10000
+n <- length(datos$eventos_poisson)
+boot_lam5 <- numeric(B)
+
+# 2. Proceso de remuestreo para el Estimador de Ceros
+for(i in 1:B) {
+  # Generamos muestra con reemplazo
+  muestra_aux <- sample(datos$eventos_poisson, size = n, replace = TRUE)
+  # Calculamos la proporción de ceros en la muestra
+  p0_hat <- mean(muestra_aux == 0)
+  
+  # Calculamos λ̂₅ = -ln(p̂₀) 
+  # Se incluye validación por si p0_hat fuera 0
+  boot_lam5[i] <- if(p0_hat > 0) -log(p0_hat) else NA
+}
+
+# 3. Cálculo de los límites del intervalo (Percentiles)
+alfa <- 0.05
+li_lam5 <- quantile(boot_lam5, alfa/2, na.rm = TRUE)
+ls_lam5 <- quantile(boot_lam5, 1 - alfa/2, na.rm = TRUE)
+
+# 4. Presentación de resultados
+res_ceros <- data.frame(
+  Metodo = "Bootstrap (Prop. Ceros)",
+  Límite_Inferior = as.numeric(li_lam5),
+  Límite_Superior = as.numeric(ls_lam5),
+  Longitud = as.numeric(ls_lam5 - li_lam5)
+)
+
+knitr::kable(
+  res_ceros, 
+  digits = 4,
+  caption = "Intervalo de Confianza al 95% para λ usando Prop. de Ceros"
+) %>%
+  kableExtra::kable_styling(full_width = F, bootstrap_options = c("striped", "hover"))
+```
+
+Con un nivel de confianza del 95% ($\alpha = 0.05$), el intervalo para el parámetro poblacional $\lambda$ basado en la proporción de ceros es [2.99, 5.29]. Al igual que sucede con la varianza, este intervalo es más amplio que el de la media muestral, lo cual muestra que basar la estimación únicamente en los valores nulos conlleva una pérdida de eficiencia, pero aún así los límites siguen siendo coherentes con la naturaleza de los datos clínicos analizados.
+
+### **3.3.6 Basado en la mediana**
+
+Se seleccionó el **Método Aleatorio** para el estimador $\hat{\lambda}_6$ debido a la naturaleza discreta de la mediana en una distribución Poisson. Como la mediana no es una función continua de los parámetros y su distribución de muestreo suele ser asimétrica y con valores discretos, el remuestreo  permite obtener un intervalo de confianza basado en la distribución empírica de los datos. Este enfoque evita limitaciones de los métodos asintóticos que asumen una suavidad en la distribución que la mediana no posee en muestras pequeñas o medianas.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# =====================================================
+# 3.2.7 Intervalo de Confianza para λ₆ (Mediana): Bootstrap
+# =====================================================
+
+# 1. Configuración del remuestreo
+set.seed(123)
+B <- 10000
+n <- length(datos$eventos_poisson)
+boot_median <- numeric(B)
+
+# 2. Proceso de remuestreo para el Estimador de la Mediana
+for(i in 1:B) {
+  # Generamos muestra con reemplazo
+  muestra_aux <- sample(datos$eventos_poisson, size = n, replace = TRUE)
+  
+  # Calculamos el estimador λ̂₆ = Mediana + 1/3
+  boot_median[i] <- median(muestra_aux) + 1/3
+}
+
+# 3. Cálculo de los límites del intervalo (Percentiles)
+alfa <- 0.05
+li_med <- quantile(boot_median, alfa/2)
+ls_med <- quantile(boot_median, 1 - alfa/2)
+
+# 4. Resultados en Tabla
+res_mediana <- data.frame(
+  Metodo = "Bootstrap (Mediana + 1/3)",
+  Límite_Inferior = as.numeric(li_med),
+  Límite_Superior = as.numeric(ls_med),
+  Longitud = as.numeric(ls_med - li_med)
+)
+
+knitr::kable(
+  res_mediana, 
+  digits = 4,
+  caption = "Intervalo de Confianza al 95% para λ usando la Mediana"
+) %>%
+  kableExtra::kable_styling(full_width = F, bootstrap_options = c("striped", "hover"))
+```
+
+Con un nivel de confianza del 95% ($\alpha = 0.05$), el intervalo de $\lambda$ basado en la mediana presenta límites idénticos de [3.3333, 3.3333]. Esto ocurre debido a la naturaleza discreta de los datos de Poisson y la alta estabilidad de la mediana en una muestra de 200 pacientes; al realizar el remuestreo (Bootstrap), el valor central no varía entre diferentes números enteros, lo que resulta en un intervalo de longitud cero.
+
+---
+
+## **3.4 Prueba para proporciones pareadas**
+
+Para evaluar la efectividad del programa de seguimiento del Ministerio de Salud, el análisis se centra en la evolución clínica de los pacientes entre el inicio y el final del estudio. En este tipo de pruebas, los pacientes que mantuvieron la misma condición a lo largo de los seis meses no aportan información sobre la dirección del cambio, por lo que el estudio se focaliza exclusivamente en los casos donde hubo una transición de estado.
+
+**Planteamiento del contexto**
+**Identificación de la muestra ($n$):** Al procesar los datos, se identificó un total de 76 pacientes que cambiaron su condición (pares discordantes). Este grupo representa el total de individuos que mostraron una reacción, positiva o negativa, al periodo de seguimiento.
+
+**Definición de "Éxitos" ($X$):** Dentro de estos 76 pacientes, se observó que 40 de ellos lograron una mejoría clínica, pasando de un estado Crítico a uno Estable. Los 36 restantes hicieron la transición inversa, pasando de Estable a Crítico.
+
+**Metodología:** Se aplicará una Prueba Exacta de Binomial mediante la función **binom.test.** El objetivo es contrastar si la cantidad de mejorías observadas (40) difiere significativamente de lo que dictaría el azar. Bajo la hipótesis nula, se asume una probabilidad de éxito de $0.5$ ($H_0: p = 0.5$), lo que indicaría que el programa no tiene un efecto inclinado hacia la mejoría, sino que los cambios ocurren de forma equilibrada en ambas direcciones.
+
+**Hipótesis del Contraste:**
+
+Para formalizar este análisis, planteamos el siguiente sistema de hipótesis basado en las probabilidades de transición:
+
+$$\begin{cases} 
+H_0: p = 0.5 & \text{(No hay cambio neto en la proporción)} \\ 
+H_1: p \neq 0.5 & \text{(Existe un cambio neto significativo)} 
+\end{cases}$$
+
+**Donde:**
+
+$p$ es la probabilidad de que un paciente incremente su bienestar clínico (transición de estado Crítico a Estable) dentro del grupo de los 76 pacientes que mostraron cambios.
+
+**Nivel de significancia:**
+$\alpha = 0.05$
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# --- Prueba de hipótesis para proporciones con datos pareados ---
+
+# Definición de parámetros según los datos extraídos (n=76, X=40)
+n <- 76   # Total de pacientes que cambiaron (discordantes)
+X <- 40   # Pacientes que mejoraron (Crítico -> Estable)
+p_teorica <- 0.5
+
+# 1. Prueba Exacta usando binom.test
+prueba_exacta <- binom.test(x = X, n = n, p = p_teorica, alternative = 'two.sided')
+print(prueba_exacta)
+
+# 2. Verificación manual del p-valor (estilo Script R)
+# Se calcula la probabilidad acumulada en la cola superior y se duplica por ser bilateral
+pvalor_manual <- 2 * sum(dbinom(X:n, n, p_teorica))
+cat("El p-valor verificado manualmente es:", pvalor_manual)
+```
+
+**Interpretación de Resultados**
+
+Dado que el p-valor ($0.7308$) es considerablemente mayor al nivel de significancia prefijado de $\alpha = 0.05$, no se rechaza la hipótesis nula ($H_0$).
+
+En términos del programa de salud, esto indica que no existe evidencia estadística suficiente para afirmar que el seguimiento de seis meses haya generado un cambio neto significativo en la condición de los pacientes. La proporción de pacientes que mejoraron su estado (pasando de crítico a estable) es estadísticamente similar a la proporción de aquellos que empeoraron, lo que sugiere que los cambios observados en esta muestra de 200 individuos se deben al azar y no a un efecto dominante de la intervención.
+
+---
+
+## **3.5 Pruebas de hipótesis con estimadores**
+
+**Prueba de Hipótesis para el Parámetro $\lambda$ (Basada en la Media Muestral)**:
+
+Se desea verificar si el promedio de eventos clínicos en la población de pacientes atendidos es significativamente diferente a un valor de referencia histórico de 3.2 eventos por paciente $\lambda_0 = 3.2$. Para ello, se utiliza la media muestral $\bar{X}$ como estadístico de prueba sobre una muestra de $n = 200$ individuos, bajo un nivel de significancia del 5% $\alpha = 0.05$.
+
+**Las hipótesis son**
+
+$H_0$: $\lambda = 3.2$ (El promedio de eventos es igual al estándar histórico).
+
+$H_1$: $\lambda \neq 3.2$ (El promedio de eventos ha cambiado respecto al estándar).
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# =====================================================
+# 3.4.1 Prueba de Hipótesis Exacta para la Media (Pivotal)
+# =====================================================
+
+# 1. Datos y Parámetros de la prueba
+x <- datos$eventos_poisson
+n <- length(x)          # n = 200
+S_obs <- sum(x)         # Suma observada de eventos (S = 700)
+lambda_0 <- 3.2         # Valor bajo la Hipótesis Nula
+alfa <- 0.05
+
+# 2. Cálculo del P-valor (Basado en la relación Poisson-Chi cuadrado)
+# Según la teoría, bajo H0: 2*n*lambda_0 sigue una Chi-cuadrado
+# Para una prueba bilateral, calculamos la probabilidad en las colas:
+p_valor <- 2 * min(ppois(S_obs, n * lambda_0), 1 - ppois(S_obs - 1, n * lambda_0))
+
+# 3. Determinación de Valores Críticos (Región de Rechazo)
+# Usando la distribución Chi-cuadrado para la suma de eventos
+vc_inf <- qchisq(alfa/2, 2 * S_obs) / (2 * n)
+vc_sup <- qchisq(1 - alfa/2, 2 * (S_obs + 1)) / (2 * n)
+
+# 4. Resultados
+res_prueba_exacta <- data.frame(
+  Parametro_H0 = lambda_0,
+  Media_Obs = mean(x),
+  Suma_Eventos = S_obs,
+  P_Valor = p_valor,
+  Decision = ifelse(p_valor < alfa, "Rechazar H0", "No Rechazar H0")
+)
+
+print("Resultado de la Prueba de Hipótesis Exacta (Poisson):")
+print(res_prueba_exacta)
+```
+
+Con un p-valor de 0.02, se rechaza Ho. El promedio de eventos es significativamente diferente de 3.2
+
+---
+
+**Prueba de Hipótesis para el Parámetro $\lambda$ (Basada en el Estimador de Máxima Verosimilitud)**
+
+Se desea verificar si el parámetro de intensidad $\lambda$ es significativamente diferente de un valor hipotético de 3.3 $\lambda_0 = 3.3$. Para este contraste, se empleará el Estimador de Máxima Verosimilitud mediante la prueba de la Razón de Verosimilitud Asintótica, la cual utiliza el estadístico $-2\ln(\Lambda)$ que se distribuye aproximadamente como una Chi-cuadrado $\chi^2$ con 1 grado de libertad. La prueba se realizará con un nivel de significancia del 5% $\alpha = 0.05$.
+
+**Las hipótesis son**
+
+$H_0$: $\lambda = 3.3$ (La intensidad del proceso Poisson es igual a 3.3).
+
+$H_1$: $\lambda \neq 3.3$ (La intensidad del proceso Poisson ha variado significativamente).
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# =====================================================
+# 3.4.2 Prueba de Hipótesis para λ_MV: Razón de Verosimilitud
+# =====================================================
+
+# 1. Datos y parámetros iniciales
+x <- datos$eventos_poisson
+n <- length(x)
+lambda_hat_mv <- mean(x)   # Estimador de Máxima Verosimilitud
+lambda_0 <- 3.3            # Valor bajo H0
+alfa <- 0.05
+
+# 2. Funciones de Log-Verosimilitud (Log-Likelihood)
+# Basado en la lógica de 'bin2' del script del profesor: suma(log(probabilidades))
+# ln L(lambda) = sum(x_i * log(lambda) - lambda - log(x_i!))
+
+log_lik_mv <- sum(x * log(lambda_hat_mv) - lambda_hat_mv - lfactorial(x))
+log_lik_h0 <- sum(x * log(lambda_0) - lambda_0 - lfactorial(x))
+
+# 3. Estadístico de la Razón de Verosimilitud (Likelihood Ratio Statistic)
+# En el script: JiCalc = -2 * (ln_max0 - ln_max)
+estadistico_rv <- -2 * (log_lik_h0 - log_lik_mv)
+
+# 4. Cálculo del p-valor y valores críticos
+# Grados de libertad = 1 (se estima un solo parámetro lambda)
+gl <- 1
+p_valor_rv <- pchisq(estadistico_rv, df = gl, lower.tail = FALSE)
+ji_tabular <- qchisq(1 - alfa, df = gl)
+
+# 5. Resultados en formato de tabla (siguiendo el estilo 'kbl' del script)
+library(kableExtra)
+resultados_mv <- data.frame(
+  "Grados_Libertad" = gl,
+  "Ji_Calculado" = estadistico_rv,
+  "Ji_Tabular" = ji_tabular,
+  "p_valor" = p_valor_rv,
+  "Decision" = ifelse(p_valor_rv < alfa, "Rechazar H0", "No Rechazar H0")
+)
+
+resultados_mv %>% 
+  kbl(caption = "Prueba de Razón de Verosimilitud Asintótica para λ_MV") %>% 
+  kable_styling(latex_options = "striped", full_width = F)
+```
+
+Con un p-valor de 0.12, no se rechaza Ho, la intensidad del proceso Poisson es igual a 3.3
+
+---
+
+**Prueba de Hipótesis (Basada en el Método de Momentos)**
+
+Se desea verificar si el parámetro de intensidad $\lambda$ es significativamente menor a 3.7 eventos por paciente $\lambda_0 = 3.7$, utilizando el Estimador de Momentos (que iguala el primer momento muestral con el poblacional). Para esto, se usará una prueba de una sola cola (unilateral izquierda) con un nivel de significancia del 5% $\alpha = 0.05$, asumiendo la normalidad asintótica del estadístico para una muestra de $n = 200$.
+
+Se utiliza la Función de Distribución Normal Estándar (pnorm) para calcular el p-valor asintótico, basándose en la diferencia entre el promedio observado y el valor hipotético, dividida por el error estándar del estimador.
+
+$H_0$: $\lambda \geq 3.7$ (La intensidad es al menos de 3.7 eventos).
+
+$H_1$: $\lambda < 3.7$ (La intensidad ha disminuido significativamente por debajo de 3.7).
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# =====================================================
+# 3.4.3 Prueba de Hipótesis para λ₃ (Momentos): Método Estadístico
+# =====================================================
+
+# 1. Datos y parámetros (H0: lambda >= 3.7 vs H1: lambda < 3.7)
+x <- datos$eventos_poisson
+n <- length(x)              # n = 200
+lambda_mom <- mean(x)       # Estimador de Momentos (Media muestral)
+lambda_0 <- 3.7             # Valor de referencia bajo H0
+alfa <- 0.05
+
+# 2. Cálculo del Error Estándar bajo H0
+# En Poisson, la varianza es igual a lambda. Usamos lambda_0 para el error estándar.
+error_est_h0 <- sqrt(lambda_0 / n)
+
+# 3. Cálculo del Estadístico de Prueba Z
+# Lógica: (Estimador - Valor_H0) / Error_Estándar
+z_obs <- (lambda_mom - lambda_0) / error_est_h0
+
+# 4. Cálculo del P-valor (Unilateral Izquierda)
+# Usando pnorm como en el script del profesor (sección Ho: mu=120)
+p_valor_mom <- pnorm(z_obs)
+
+# 5. Valor Crítico (Z alfa)
+z_critico <- qnorm(alfa)
+
+# 6. Tabla de Resultados
+res_mom <- data.frame(
+  Estimador_Mom = lambda_mom,
+  Lambda_H0 = lambda_0,
+  Estadistico_Z = z_obs,
+  Valor_Critico_Z = z_critico,
+  P_Valor = p_valor_mom,
+  Decision = ifelse(p_valor_mom < alfa, "Rechazar H0", "No Rechazar H0")
+)
+
+print("Resultado de la Prueba de Hipótesis (Método de Momentos):")
+print(res_mom)
+```
+
+Con un nivel de confianza del 95% $\alpha = 0.05$, la prueba de hipótesis da un p-valor de 0.07. Al ser este valor ligeramente superior al umbral de significancia establecido, la decisión estadística es no rechazar la hipótesis nula $H_0$. Sin embargo, es importante decir que el resultado se encuentra al límite de la significancia ósea se pudo haber rechazado $Ho$. Esto sugiere que, si bien no hay evidencia contundente para afirmar que la tasa es menor a 3.7, se podría analizar más los datos ya que el estadístico se sitúa muy cerca de la región de rechazo
+
+---
+
+**Prueba de Hipótesis (Basada en la Varianza Muestral)**
+
+Se desea contrastar si la intensidad de eventos clínicos $\lambda$ es significativamente distinta de un valor de referencia de 3.8 $\lambda_0 = 3.8$. Para este análisis, se utilizará la Varianza Muestral $S^2$ como estadístico de prueba. Como no existe una distribución teórica exacta y sencilla para $S^2$ en el modelo Poisson, se empleará el Método Aleatorio mediante Simulación de Monte Carlo para ver  si la varianza observada es estadísticamente compatible con el valor hipotético, bajo un nivel de significancia del 5%
+
+Se usará la función rpois() para generar miles de muestras bajo la hipótesis nula $H_0: \lambda = 3.8$ y calcular la varianza en cada una, construyendo así una distribución empírica para obtener el p-valor.
+
+$H_0$: $\lambda = 3.8$ (La varianza poblacional es igual a 3.8).
+
+$H_1$: $\lambda \neq 3.8$ (La varianza poblacional difiere de 3.8).
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# =====================================================
+# 3.4.4 Prueba de Hipótesis para λ₄ (Varianza): Método Aleatorio
+# =====================================================
+
+# 1. Parámetros de la prueba
+set.seed(123)
+n <- length(datos$eventos_poisson) # n = 200
+lambda_0 <- 3.8                    # Valor bajo H0
+N <- 10^5                          # Número de simulaciones (como en el script)
+s2_obs <- var(datos$eventos_poisson) # Varianza observada en tus datos
+
+# 2. Simulación de Monte Carlo (Lógica de contador del profesor)
+# El profesor usa contadores para ver cuántas veces se cumple una condición
+contador <- 0
+
+for (i in 1:N) {
+  # Generamos una muestra bajo el supuesto de que H0 es verdadera
+  muestra_sim <- rpois(n, lambda_0)
+  
+  # Calculamos la varianza de la muestra simulada
+  s2_sim <- var(muestra_sim)
+  
+  # Si la varianza simulada es más extrema que la observada, incrementamos
+  # Prueba bilateral: comparamos en términos absolutos o extremos
+  if (s2_sim >= s2_obs) {
+    contador <- contador + 1
+  }
+}
+
+# 3. Cálculo del P-valor empírico
+# El profesor calcula proporciones de rechazo dividiendo entre N
+p_valor <- contador / N
+
+# 4. Resultados
+res_varianza <- data.frame(
+  Varianza_Obs = s2_obs,
+  Lambda_H0 = lambda_0,
+  Simulaciones = N,
+  P_Valor = p_valor,
+  Decision = ifelse(p_valor < 0.05, "Rechazar H0", "No Rechazar H0")
+)
+
+print("Resultado de la Prueba de Hipótesis (Simulación para Varianza):")
+print(res_varianza)
+```
+
+Con un p-valor de 0.87, no se rechaza Ho, por lo tanto, la varianza poblacional es igual a 3.8
+
+---
+
+**Prueba de Hipótesis (Basada en la proporción de ceros)**
+
+Se desea verificar si la intensidad de eventos clínicos $\lambda$ es significativamente mayor a 3.4 ($\lambda_0 = 3.4$). Bajo el modelo Poisson, esto equivale a probar si la proporción de ceros en la población es menor a $e^{-3.4} \approx 0.03337$. Se utilizará el conteo de ceros observado en la muestra de $n = 200$ pacientes para realizar una prueba de una sola proporción con un nivel de significancia del 5%
+
+$H_0$: $\lambda \leq 3.4$ (o $p_0 \geq 0.03337$)
+
+$H_1$: $\lambda > 3.4$ (o $p_0 < 0.03337$)
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# =====================================================
+# 3.4.5 Prueba de Hipótesis para λ₅ (Prop. Ceros): Método Proporciones
+# =====================================================
+
+# 1. Preparación de los datos y parámetros
+# Contamos cuántos ceros hay en la muestra (X = n° de éxitos)
+n_ceros <- sum(datos$eventos_poisson == 0) 
+n_total <- length(datos$eventos_poisson)   # n = 200
+
+# Definimos el valor de lambda bajo H0 y lo convertimos a proporción (p0)
+# p0 = P(X=0) = exp(-lambda)
+lambda_0 <- 3.4
+p0 <- exp(-lambda_0) # Aproximadamente 0.03337
+
+# 2. Prueba Exacta (Basada en la distribución Binomial)
+# Siguiendo el ejemplo binom.test(69, 310, p0, alternative = 'less') del script
+prueba_exacta <- binom.test(x = n_ceros, 
+                            n = n_total, 
+                            p = p0, 
+                            alternative = "less")
+
+# 3. Prueba Z para Proporciones (Asintótica)
+# Siguiendo el ejemplo prop.test(69, 310, p=0.26, alternative = 'less') del script
+prueba_z <- prop.test(x = n_ceros, 
+                      n = n_total, 
+                      p = p0, 
+                      alternative = "less", 
+                      correct = TRUE)
+
+# 4. Resultados en Tabla (Estilo del profesor)
+res_prop_ceros <- data.frame(
+  "Metodo" = c("Exacto (Binomial)", "Asintotico (Z)"),
+  "Ceros_Obs" = n_ceros,
+  "Prop_Esperada_H0" = round(p0, 5),
+  "P_Valor" = c(prueba_exacta$p.value, prueba_z$p.value),
+  "Decision" = c(ifelse(prueba_exacta$p.value < 0.05, "Rechazar H0", "No Rechazar H0"),
+                 ifelse(prueba_z$p.value < 0.05, "Rechazar H0", "No Rechazar H0"))
+)
+
+print("Resultados de la Prueba de Hipótesis para la Proporción de Ceros:")
+print(res_prop_ceros)
+```
+
+Al evaluar el parámetro $\lambda$ a través de la presencia de ceros en la muestra, se obtuvieron dos $p$-valores (0.340 para la prueba exacta y 0.321 para la prueba asintótica).
+
+**Hay dos p_valores por estas razones:**
+
+El primero es del **enfoque exacto**, este valor $p = 0.340$ es el más preciso matemáticamente. Se basa en la distribución Binomial, la cual es discreta y calcula la probabilidad exacta de observar esa cantidad de ceros (o menos) bajo el supuesto de que $H_0$ es cierta.
+
+El segundo es del **enfoque asintótico**, este valor $p = 0.321$ utiliza una aproximación a la Normal (Prueba Z). Como la Normal es una distribución continua y la Binomial es de "saltos" (discreta), se aplica una "corrección por continuidad" que suele afectar un poco el $p$-valor.
+
+---
+
+**Prueba de Hipótesis (Basada en la mediana)**
+
+Se desea verificar si el parámetro de intensidad $\lambda$ es significativamente diferente de un valor de referencia de 3.5 ($\lambda_0 = 3.5$). Se utilizará la Mediana muestral ajustada como estadístico de prueba. La mediana en datos discretos cambia a "saltos" y no sigue una distribución normal sencilla, entonces se empleará una prueba de signos o una simulación de Monte Carlo para determinar la probabilidad de observar dicha mediana bajo la hipótesis nula ($\alpha = 0.05$).
+
+$H_0$: $\lambda = 3.5$ (La mediana poblacional es compatible con una intensidad de 3.5).
+
+$H_1$: $\lambda \neq 3.5$ (La mediana poblacional sugiere una intensidad distinta a 3.5).
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# =====================================================
+# 3.4.6 Prueba de Hipótesis para λ₆ (Mediana): Simulación
+# =====================================================
+
+# 1. Configuración de la prueba
+set.seed(123)
+n <- length(datos$eventos_poisson) # n = 200
+lambda_0 <- 3.5                    # Valor propuesto en H0
+N <- 10^5                          # Número de repeticiones (según el script)
+
+# Calculamos el estimador observado en nuestros datos reales
+est_mediana_obs <- median(datos$eventos_poisson) + 1/3
+
+# 2. Proceso de Simulación (Lógica de contador del Profesor Miranda)
+# El profesor usa contadores para evaluar la proporción de rechazo
+contador_extremos <- 0
+
+for (i in 1:N) {
+  # Generamos muestra Poisson bajo H0
+  muestra_h0 <- rpois(n, lambda_0)
+  
+  # Calculamos el estimador para la muestra simulada
+  est_sim <- median(muestra_h0) + 1/3
+  
+  # Contamos cuántas veces el azar genera un valor igual o más extremo que el observado
+  # Prueba bilateral: medimos la discrepancia absoluta
+  if (abs(est_sim - lambda_0) >= abs(est_mediana_obs - lambda_0)) {
+    contador_extremos <- contador_extremos + 1
+  }
+}
+
+# 3. Cálculo del P-valor empírico
+# Proporción según la lógica del script: contador / N
+p_valor_mediana <- contador_extremos / N
+
+# 4. Resultados en tabla (siguiendo el estilo 'kbl' del profesor)
+library(kableExtra)
+res_mediana_ph <- data.frame(
+  "Estimador_Mediana" = est_mediana_obs,
+  "Valor_H0" = lambda_0,
+  "P_valor" = p_valor_mediana,
+  "Decision" = ifelse(p_valor_mediana < 0.05, "Rechazar H0", "No Rechazar H0")
+)
+
+res_mediana_ph %>% 
+  kbl(caption = "Prueba de Hipótesis para λ basada en la Mediana (Simulación)") %>% 
+  kable_styling(latex_options = "striped", full_width = F)
+```
+
+Al realizar la prueba de hipótesis para el parámetro $\lambda$ utilizando el estimador de la mediana ajustada, se obtuvo un p-valor de 1. Este resultado indica que no existe evidencia estadística alguna para rechazar la hipótesis nula ($H_0$) bajo este método.
+
+Un p-valor de 1 sucede cuando el valor observado en tus datos reales es exactamente igual al valor más probable (la moda) de la distribución bajo la hipótesis nula. En nuestro caso, la mediana observada es idéntica a la mediana que se esperaría obtener por puro azar si $\lambda = 3.5$ fuera cierto.
+
+También, en una muestra grande ($n=200$), la mediana es muy estable. Si el valor hipotético ($\lambda_0=3.5$) genera medianas que son casi siempre iguales a la observada, el contador de la simulación llega al máximo, generando un p-valor de 1.
+
+## **3.6 Función potencia de prueba**
+
+Dado que la población de eventos clínicos sigue una distribución Poisson, la cual es de naturaleza discreta y no se ajusta a los supuestos de normalidad ni binomialidad, se procederá a analizar la sensibilidad de la regla de decisión mediante el estudio de su Función Potencia ($1 - \beta$)
+
+El objetivo es evaluar la capacidad de la prueba para reconocer correctamente la falsedad de la hipótesis nula ($H_0: \lambda = 3.5$) frente a un rango de valores alternativos del parámetro $\lambda$. Se comparará gráficamente el desempeño del poder de la prueba bajo dos escenarios de tamaño de muestra ($n = 200$ frente a un escenario reducido de $n = 50$), utilizando la propiedad de aditividad de la distribución Poisson para determinar las regiones críticas exactas. En este caso, haremos una representación visual con las funciones ggplot2 y theme_dark.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# -------------------------------------------------------------------------
+# ANÁLISIS DE LA FUNCIÓN POTENCIA - POBLACIÓN POISSON (PUNTO E)
+# Basado en la metodología del Profesor Miranda (Ejemplos 17 y 22)
+# -------------------------------------------------------------------------
+
+library(tidyverse)
+library(ggthemes) # Para temas avanzados si se desea, aunque usaremos theme_dark
+
+# 1. Parámetros Iniciales
+alpha <- 0.05
+lambda0 <- 3.5   # Valor bajo la Hipótesis Nula
+n_actual <- 200  # Tu tamaño de muestra
+n_comparar <- 50 # Escenario alternativo para análisis de sensibilidad
+
+# 2. Determinación de Valores Críticos (k)
+# Como la suma de variables Poisson es Poisson: S ~ Pois(n * lambda)
+# Buscamos k tal que P(S >= k | lambda0) <= alpha
+k_200 <- qpois(1 - alpha, n_actual * lambda0) + 1
+k_50  <- qpois(1 - alpha, n_comparar * lambda0) + 1
+
+# 3. Definición del Rango del Parámetro Lambda para la curva
+lambdas <- seq(2.5, 5.5, 0.01)
+
+# 4. Cálculo de las Funciones Potencia
+# Poder = P(Rechazar H0 | Lambda es Verdadero)
+poder_n200 <- ppois(k_200 - 1, n_actual * lambdas, lower.tail = FALSE)
+poder_n50  <- ppois(k_50 - 1, n_comparar * lambdas, lower.tail = FALSE)
+
+# 5. Creación del Tibble para Graficar
+df_potencia <- tibble(
+  lambda = lambdas,
+  Poder_Actual = poder_n200,
+  Poder_Reducido = poder_n50
+)
+
+# 6. Visualización Comparativa (Estilo Profesor Miranda - Ejemplo 17-e)
+ggplot(data = df_potencia, mapping = aes(x = lambda)) +
+  # Curva de Potencia para n = 200
+  geom_line(aes(y = Poder_Actual, color = 'n = 200 (Actual)'), linewidth = 1.3) +
+  # Curva de Potencia para n = 50
+  geom_line(aes(y = Poder_Reducido, color = 'n = 50 (Reducido)'), 
+            lty = 2, linewidth = 1.3) +
+  # Líneas de referencia (Estilo Ejemplo 17-b)
+  geom_vline(xintercept = lambda0, color = '#66CDAA', lty = 3, lwd = 1) +
+  geom_hline(yintercept = alpha, color = '#66CDAA', lty = 3, lwd = 1) +
+  # Etiquetas y Títulos
+  labs(
+    x = expression(lambda),
+    y = 'Poder de la Prueba (1 - Beta)',
+    title = 'Comparación de Funciones Potencia: Población Poisson',
+    subtitle = paste('Efecto del tamaño de muestra en la detección de cambios (Alpha =', alpha, ')'),
+    caption = 'Análisis basado en la propiedad de aditividad de la distribución Poisson'
+  ) +
+  # Colores específicos y Tema Dark (Referencia Ejemplo 17-e)
+  scale_color_manual(
+    name = 'Tamaño de Muestra',
+    values = c('n = 200 (Actual)' = '#CDAA7D', 'n = 50 (Reducido)' = 'tomato')
+  ) +
+  theme_dark() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    legend.position = "bottom"
+  )
+
+# 7. Cálculo de un valor específico de potencia (Referencia Ejemplo 17-b)
+# ¿Cuál es el poder si la verdadera tasa fuera 4.0?
+lambda_test <- 4.0
+poder_especifico <- ppois(k_200 - 1, n_actual * lambda_test, lower.tail = FALSE)
+cat("La probabilidad de detectar correctamente un cambio a lambda =", lambda_test, 
+    "con n=200 es:", round(poder_especifico, 4))
+```
+
+**Interpretación**
+
+La función potencia $\pi(\lambda)$ permite evaluar la sensibilidad de la prueba para la población Poisson, evidenciando su capacidad para rechazar correctamente una hipótesis nula falsa. La curva de color piel, que representa la muestra de $n = 200$, refleja una pendiente mucho más pronunciada y alcanza el nivel de potencia máximo (1.0) de forma más acelerada que la curva roja ($n = 50$). Esto indica una eficacia superior: al tener más datos, la prueba se vuelve más precisa para distinguir entre la realidad y el supuesto inicial, lo que hace que la probabilidad de cometer un Error Tipo II ($\beta$) disminuya drásticamente. 
+
+Por otro lado, con la línea roja ($n=50$) todavía existe un riesgo alto de "no darse cuenta" del cambio, la línea color piel sube casi verticalmente hacia el 1, confirmando la consistencia de la prueba. Las líneas celestes validan que bajo $H_0$ ($\lambda = 3.5$), el poder es el nivel de significancia $\alpha = 0.05$; sin embargo, la superioridad de la muestra grande es evidente, ya que ante un cambio a $\lambda = 4.0$, la prueba de $n=200$ garantiza un 97.61% de éxito en la detección, asegurando que prácticamente cualquier incremento importante en la tasa de eventos será bien identificado.
+
+## **3.7 Distribución asintótica de la razón de verosimilitud**
+
+Considerando que la población en estudio sigue una distribución Poisson, se procederá a realizar una prueba de hipótesis para el parámetro $\lambda$ mediante el Método de la Razón de Verosimilitud. Dado que se cumplen las condiciones de regularidad (soporte independiente del parámetro e identificabilidad), se aplicará el **Teorema de Wilks**, el cual establece que el estadístico de prueba $-2\ln(\Lambda)$ converge asintóticamente a una distribución Chi-cuadrado ($\chi^2$) con un grado de libertad.
+
+El análisis va a comparar la verosimilitud del modelo bajo la hipótesis nula ($H_0: \lambda = 3.5$) frente a la verosimilitud del modelo bajo el espacio total de parámetros, usando el Estimador de Máxima Verosimilitud (EMV) obtenido de la muestra de $n=200$ observaciones. El cálculo se realizará mediante la diferencia de las log-verosimilitudes para que haya más precisión.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# -------------------------------------------------------------------------
+# f. PRUEBA LRT (VERSIÓN DIRECTA SIN ERRORES)
+# -------------------------------------------------------------------------
+
+library(kableExtra)
+library(tidyverse)
+
+# 1. Preparación de valores (Basado en la lógica de bin2)
+x_lrt <- datos$eventos_poisson  # Usamos tus datos
+n_lrt <- length(x_lrt)
+suma_x_lrt <- sum(x_lrt)
+lambda0_lrt <- 3.4          # Valor bajo H0
+lambda_hat_lrt <- mean(x_lrt)  # EMV bajo Omega
+
+# 2. Cálculo de Log-Verosimilitudes (Fórmula exacta Poisson)
+# ln L(lambda) = -n*lambda + suma(x)*ln(lambda)
+ln_max_omega <- -n_lrt * lambda_hat_lrt + suma_x_lrt * log(lambda_hat_lrt)
+ln_max_omega0 <- -n_lrt * lambda0_lrt + suma_x_lrt * log(lambda0_lrt)
+
+# 3. Estadístico de Wilks (Ji-Calculado)
+# Según el material: JiCalc = -2 * [ln L(omega0) - ln L(omega)]
+A_lrt <- ln_max_omega0 - ln_max_omega
+ji_calc_lrt <- -2 * (A_lrt)
+
+# 4. Parámetros de la distribución Chi-cuadrado
+df_lrt <- 1
+ji_tab_lrt <- qchisq(0.95, df_lrt)
+p_val_lrt <- 1 - pchisq(ji_calc_lrt, df_lrt)
+
+# 5. Resultado y Tabla Estilo Miranda
+decision_lrt <- if(p_val_lrt < 0.05) "Rechazar H0" else "No rechazar H0"
+
+tabla_f <- data.frame(
+  "Grados_Libertad" = df_lrt,
+  "Ji_Calculado" = round(ji_calc_lrt, 4),
+  "Ji_Tabular" = round(ji_tab_lrt, 4),
+  "p_valor" = round(p_val_lrt, 4),
+  "Decision" = decision_lrt,
+  row.names = "Resultados LRT"
+)
+
+# 6. Visualización final
+tabla_f %>% 
+  kbl() %>% 
+  kable_styling(latex_options = "striped", full_width = F)
+```
+
+Al comparar la hipótesis nula ($\lambda_0 = 3.4$) mediante la razón de verosimilitud asintótica, se obtuvo un estadístico Ji-Calculado de 0.5826, valor inferior al Ji-Tabular de 3.8415 ($\chi^2_{0.95, 1}$). Con un p-valor de 0.4453, se concluye que no existe evidencia estadística suficiente para rechazar $H_0$. Esto indica que la diferencia observada entre el estimador máximo verosímil ($\hat{\lambda} = 3.5$) y el valor postulado es mínima y puede deberse al azar muestral. Por lo tanto, bajo el Teorema de Wilks, se asume que el modelo restringido es una representación creíble de la tasa de eventos clínicos en la población.
+
+# **4. Referencias**
+
+Miranda Villagómez, F. (2020). Un curso de inferencia estadística. Universidad Nacional Agraria La Molina. ISBN 978-612-4387-41-8
+
+Casella, G., & Berger, R. L. (2002). Statistical Inference. Duxbury Thompson Learning.
+
+
+
+
+
